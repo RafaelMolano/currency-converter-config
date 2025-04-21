@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-currency-converter-api
+  labels:
+    app: currency-converter-api
+    chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: currency-converter-api
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: currency-converter-api
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 8000
+          name: http
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.startupProbe.enabled }}
+        startupProbe:
+          httpGet:
+            path: {{ .Values.startupProbe.path }}
+            port: {{ .Values.startupProbe.port }}
+          initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.readinessProbe.path }}
+            port: {{ .Values.readinessProbe.port }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+        {{- end }}

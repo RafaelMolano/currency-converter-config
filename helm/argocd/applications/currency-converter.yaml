@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: currency-converter-api
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/RafaelMolano/currency-converter-config.git
+    targetRevision: HEAD
+    path: helm/currency-converter-api
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: diplomado #default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

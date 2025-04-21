@@ -1,0 +1,84 @@
+replicaCount: 2
+
+image:
+  repository: currency-converter-api
+  tag: latest
+  pullPolicy: Never
+
+service:
+  type: ClusterIP  #NodePort, ClusterIP, LoadBalancer
+  port: 80
+  targetPort: 8000
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+startupProbe:
+  enabled: true
+  path: /health
+  port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  path: /health
+  port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 3
+
+#para hpa
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+
+
+#para ingress
+ingress:
+  enabled: true
+  className: nginx
+  path: /example(/|$)(.*)
+  pathType: ImplementationSpecific
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+# ingress:
+#   enabled: true
+#   annotations:
+#     kubernetes.io/ingress.class: "nginx"
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#   hosts:
+#     - host: fastapi.local
+#       paths:
+#         - path: / #este es el path que se va a usar para acceder al root del nginx
+#           pathType: Prefix
+#   tls: []
+#   # - secretName: fastapi-tls
+#   #   hosts:
+#   #     - fastapi.local
