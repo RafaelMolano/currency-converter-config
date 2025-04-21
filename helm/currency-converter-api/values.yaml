@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: rafaelmolano/currency-converter-api
   tag: latest
-  pullPolicy: Never
+  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP  #NodePort, ClusterIP, LoadBalancer
