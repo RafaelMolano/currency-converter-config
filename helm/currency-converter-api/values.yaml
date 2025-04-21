@@ -63,7 +63,7 @@ autoscaling:
 ingress:
   enabled: true
   className: nginx
-  path: /example(/|$)(.*)
+  path: /diplomado(/|$)(.*)
   pathType: ImplementationSpecific
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
